@@ -1,6 +1,6 @@
 {
 	"name": "Java-JML",
-	"scopeName": "source.java.jml",
+	"scopeName": "source.java",
 	"patterns": [
 		{
 			"begin": "\\b(package)\\b\\s*",
