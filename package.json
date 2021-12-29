@@ -1,47 +1,44 @@
 {
-  "name": "java",
+  "name": "java-jml",
   "displayName": "%displayName%",
   "description": "%description%",
   "version": "1.0.0",
-  "publisher": "vscode",
+  "publisher": "Julian Wiesler",
   "license": "MIT",
   "engines": {
     "vscode": "*"
   },
-  "scripts": {
-    "update-grammar": "node ../node_modules/vscode-grammar-updater/bin atom/language-java grammars/java.cson ./syntaxes/java.tmLanguage.json"
-  },
   "contributes": {
     "languages": [
       {
-        "id": "java",
+        "id": "java-jml",
         "extensions": [
           ".java",
           ".jav"
         ],
         "aliases": [
-          "Java",
-          "java"
+          "Java-JML",
+          "java-jml"
         ],
         "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
       {
-        "language": "java",
-        "scopeName": "source.java",
-        "path": "./syntaxes/java.tmLanguage.json"
+        "language": "java-jml",
+        "scopeName": "source.java.jml",
+        "path": "./syntaxes/java-jml.tmLanguage.json"
       }
     ],
     "snippets": [
       {
         "language": "java",
-        "path": "./snippets/java.code-snippets"
+        "path": "./snippets/java-jml.code-snippets"
       }
     ]
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/vscode.git"
+    "url": "https://github.com/jwiesler/code-java-jml.git"
   }
 }
