@@ -553,13 +553,19 @@
 				},
 				{
 					"include": "#comments-inline"
+				},
+				{
+					"include": "#comments-jml"
+				},
+				{
+					"include": "#comments-jml-single"
 				}
 			]
 		},
 		"comments-inline": {
 			"patterns": [
 				{
-					"begin": "/\\*",
+					"begin": "/\\*(?!@)",
 					"captures": {
 						"0": {
 							"name": "punctuation.definition.comment.java"
@@ -578,7 +584,7 @@
 					"end": "(?!\\G)",
 					"patterns": [
 						{
-							"begin": "//",
+							"begin": "//(?!@)",
 							"beginCaptures": {
 								"0": {
 									"name": "punctuation.definition.comment.java"
@@ -586,8 +592,648 @@
 							},
 							"end": "\\n",
 							"name": "comment.line.double-slash.java"
+						},
+						{
+							"include": "#comments-jml-single"
 						}
 					]
+				}
+			]
+		},
+		"jml-quantors": {
+			"patterns": [
+				{
+					"begin": "\\((\\\\(forall|exists|num_of|sum|product|max|min|seq_def|infinte_union))",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.modifier.java"
+						}
+					},
+					"contentName": "meta.block.jml.quantor",
+					"end": "\\)",
+					"patterns": [
+						{
+							"include": "#primitive-types"
+						},
+						{
+							"match": "\\\\(bigint|seq|locset)",
+							"name": "storage.type.primitive.java"
+						},
+						{
+							"include": "#jml-expression"
+						}
+					]
+				}
+			]
+		},
+		"jml-assignable": {
+			"begin": "(?<=@\\s+)(assignable|modifiable|modifies)",
+			"beginCaptures": {
+				"1": {
+					"name": "storage.modifier.java"
+				}
+			},
+			"contentName": "meta.block.jml.assignable",
+			"end": "(;)",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.terminator.java"
+				}
+			},
+			"patterns": [
+				{
+					"match": "\\.\\.",
+					"name": "punctuation.separator.period.double.java"
+				},
+				{
+					"match": "\\*",
+					"name": "punctuation.separator.star.java"
+				},
+				{
+					"include": "#jml-expression"
+				},
+				{
+					"match": "\\\\((strictly_)?nothing|everything)",
+					"name": "storage.modifier.java"
+				}
+			]
+		},
+		"jml-parens": {
+			"patterns": [
+				{
+					"begin": "\\(",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.bracket.round.java"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.bracket.round.java"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"begin": "\\[",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.bracket.square.java"
+						}
+					},
+					"end": "\\]",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.bracket.square.java"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				}
+			]
+		},
+		"jml-expression": {
+			"patterns": [
+				{
+					"include": "#numbers"
+				},
+				{
+					"begin": "(\\.)\\s*([A-Za-z_$][\\w$]*)\\s*(\\()",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.separator.period.java"
+						},
+						"2": {
+							"name": "entity.name.function.java"
+						},
+						"3": {
+							"name": "punctuation.definition.parameters.begin.bracket.round.java"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.parameters.end.bracket.round.java"
+						}
+					},
+					"name": "meta.method-call.java",
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"begin": "([A-Za-z_$][\\w$]*)\\s*(\\()",
+					"beginCaptures": {
+						"1": {
+							"name": "entity.name.function.java"
+						},
+						"2": {
+							"name": "punctuation.definition.parameters.begin.bracket.round.java"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.parameters.end.bracket.round.java"
+						}
+					},
+					"name": "meta.function-call.java",
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"begin": "(\\\\(dl_[A-Za-z_$][\\w$]*|old|pre|intersect|set_union|set_minus|infinite_union|reachLocs|seq_concat|seq_singleton|invariant_for))\\s*(\\()",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.modifier.java"
+						},
+						"2": {
+							"name": "punctuation.definition.parameters.begin.bracket.round.java"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.parameters.end.bracket.round.java"
+						}
+					},
+					"name": "meta.function-call.java",
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"match": "\\b(true|false|null)\\b",
+					"name": "constant.language.java"
+				},
+				{
+					"match": "\\bthis\\b",
+					"name": "variable.language.this.java"
+				},
+				{
+					"match": "\\bsuper\\b",
+					"name": "variable.language.super.java"
+				},
+				{
+					"match": "\\\\(result|index|values|seq_empty)",
+					"name": "storage.modifier.java"
+				},
+				{
+					"include": "#properties"
+				},
+				{
+					"include": "#objects"
+				},
+				{
+					"include": "#jml-quantors"
+				},
+				{
+					"include": "#jml-parens"
+				},
+				{
+					"include": "#comments-inline"
+				},
+				{
+					"match": "\\.",
+					"name": "punctuation.separator.period.java"
+				},
+				{
+					"match": "(&|\\^|\\||<<|>>>?)",
+					"name": "keyword.operator.assignment.bitwise.java"
+				},
+				{
+					"match": "(==|!=|<=|>=|<|>)",
+					"name": "keyword.operator.comparison.java"
+				},
+				{
+					"match": "([+*/%-]=)",
+					"name": "keyword.operator.assignment.arithmetic.java"
+				},
+				{
+					"match": "(\\-|\\+|\\*|\\/|%)",
+					"name": "keyword.operator.arithmetic.java"
+				},
+				{
+					"match": "(!|&&|\\|\\|)",
+					"name": "keyword.operator.logical.java"
+				},
+				{
+					"match": "(\\||&)",
+					"name": "keyword.operator.bitwise.java"
+				},
+				{
+					"match": "(==>|<==|<==>)",
+					"name": "keyword.operator.comparison.java"
+				},
+				{
+					"include": "#jml-at"
+				}
+			]
+		},
+		"jml-requires-ensures": {
+			"begin": "(?<=@\\s+)(requires|ensures)",
+			"beginCaptures": {
+				"1": {
+					"name": "storage.modifier.java"
+				}
+			},
+			"contentName": "meta.block.jml.requires",
+			"end": "(;)",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.terminator.java"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#jml-expression"
+				}
+			]
+		},
+		"jml-measured-by": {
+			"begin": "(?<=@\\s+)(measured_by)",
+			"beginCaptures": {
+				"1": {
+					"name": "storage.modifier.java"
+				}
+			},
+			"contentName": "meta.block.jml.measured-by",
+			"end": "(;)",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.terminator.java"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#jml-expression"
+				}
+			]
+		},
+		"jml-behaviour-model": {
+			"patterns": [
+				{
+					"include": "#jml-requires-ensures"
+				},
+				{
+					"include": "#comments-inline"
+				},
+				{
+					"include": "#jml-model-method"
+				},
+				{
+					"include": "#jml-at"
+				}
+			]
+		},
+		"jml-model-method": {
+			"begin": "(?=[\\w ]*model )(?!new)(?=[\\w<].*\\s+)(?=([^=/]|/(?!/))+\\()",
+			"end": "(})|(?=;)",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.section.method.end.bracket.curly.java"
+				}
+			},
+			"name": "meta.method.java",
+			"patterns": [
+				{
+					"match": "(model|static)",
+					"name": "storage.modifier.java"
+				},
+				{
+					"begin": "(\\w+)\\s*(\\()",
+					"beginCaptures": {
+						"1": {
+							"name": "entity.name.function.java"
+						},
+						"2": {
+							"name": "punctuation.definition.parameters.begin.bracket.round.java"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.parameters.end.bracket.round.java"
+						}
+					},
+					"name": "meta.method.identifier.java",
+					"patterns": [
+						{
+							"include": "#parameters"
+						},
+						{
+							"include": "#jml-parens"
+						},
+						{
+							"include": "#comments"
+						}
+					]
+				},
+				{
+					"begin": "(?=\\w.*\\s+\\w+\\s*\\()",
+					"end": "(?=\\s+\\w+\\s*\\()",
+					"name": "meta.method.return-type.java",
+					"patterns": [
+						{
+							"include": "#all-types"
+						},
+						{
+							"include": "#jml-parens"
+						},
+						{
+							"include": "#comments"
+						}
+					]
+				},
+				{
+					"begin": "{",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.section.method.begin.bracket.curly.java"
+						}
+					},
+					"end": "(?=})",
+					"contentName": "meta.method.body.java",
+					"patterns": [
+						{
+							"match": "return",
+							"name": "keyword.control.java"
+						},
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"include": "#comments"
+				},
+				{
+					"include": "#jml-at"
+				}
+			]
+		},
+		"jml-behaviour-normal": {
+			"patterns": [
+				{
+					"include": "#jml-requires-ensures"
+				},
+				{
+					"include": "#jml-assignable"
+				},
+				{
+					"include": "#jml-measured-by"
+				},
+				{
+					"include": "#comments-inline"
+				},
+				{
+					"include": "#jml-at"
+				}
+			]
+		},
+		"jml-invariant": {
+			"patterns": [
+				{
+					"begin": "(?<=@\\s+)((static|instance)\\s+)?(invariant|constraint|initially|axiom)",
+					"beginCaptures": {
+						"2": {
+							"name": "storage.modifier.java"
+						},
+						"3": {
+							"name": "storage.modifier.java"
+						}
+					},
+					"contentName": "meta.block.jml.invariant",
+					"end": "(;)",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.terminator.java"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"include": "#comments-inline"
+				},
+				{
+					"include": "#jml-at"
+				}
+			]
+		},
+		"jml-loop": {
+			"patterns": [
+				{
+					"begin": "(?<=@\\s+)(loop_invariant|maintaining|decreases|decreasing)",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.modifier.java"
+						}
+					},
+					"contentName": "meta.block.jml.loop.invariant",
+					"end": "(;)",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.terminator.java"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"include": "#jml-assignable"
+				},
+				{
+					"include": "#comments-inline"
+				},
+				{
+					"include": "#jml-at"
+				}
+			]
+		},
+		"jml-at": {
+			"match": "\\s*(@)",
+			"captures": {
+				"1": {
+					"name": "comment.symbol.at.jml"
+				}
+			}
+		},
+		"comments-jml-single": {
+			"begin": "(//)(?=@)",
+			"beginCaptures": {
+				"1": {
+					"name": "comment.symbol.start.jml"
+				}
+			},
+			"end": "\n",
+			"contentName": "meta.line.jml",
+			"patterns": [
+				{
+					"include": "#jml-invariant"
+				},
+				{
+					"begin": "(?<=@\\s+)(ghost|model)\\s+",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.modifier.java"
+						}
+					},
+					"end": ";",
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						},
+						{
+							"include": "#all-types"
+						},
+						{
+							"match": "([A-Za-z$_][\\w$]*)",
+							"name": "variable.other.definition.java"
+						}
+					]
+				},
+				{
+					"begin": "(?<=@\\s+)(assert)\\s+",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.modifier.java"
+						}
+					},
+					"end": ";",
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"begin": "(?<=@\\s+)(set)\\s+([A-Za-z$_][\\w$]*)\\s+=\\s+",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.modifier.java"
+						},
+						"2": {
+							"name": "variable.other.definition.java"
+						}
+					},
+					"end": ";",
+					"patterns": [
+						{
+							"include": "#jml-expression"
+						}
+					]
+				},
+				{
+					"include": "#jml-at"
+				}
+			]
+		},
+		"comments-jml": {
+			"begin": "(/\\*)(?=@)",
+			"beginCaptures": {
+				"1": {
+					"name": "comment.symbol.start.jml"
+				}
+			},
+			"name": "meta.block.jml",
+			"end": "(\\*/)",
+			"endCaptures": {
+				"1": {
+					"name": "comment.symbol.end.jml"
+				}
+			},
+			"patterns": [
+				{
+					"begin": "(?<=@\\s+)((public|private)\\s+)?(normal_behaviou?r)",
+					"beginCaptures": {
+						"2": {
+							"name": "storage.modifier.java"
+						},
+						"3": {
+							"name": "entity.name.function.java"
+						}
+					},
+					"name": "meta.block.jml.behaviour.normal",
+					"end": "(?=\\*/)",
+					"patterns": [
+						{
+							"include": "#jml-behaviour-normal"
+						}
+					]
+				},
+				{
+					"begin": "(?<=@\\s+)((public|private)\\s+)?(model_behaviou?r)",
+					"beginCaptures": {
+						"2": {
+							"name": "storage.modifier.java"
+						},
+						"3": {
+							"name": "entity.name.function.java"
+						}
+					},
+					"name": "meta.block.jml.behaviour.model",
+					"end": "(?=\\*/)",
+					"patterns": [
+						{
+							"include": "#jml-behaviour-model"
+						}
+					]
+				},
+				{
+					"begin": "(?<=@\\s+)(?=loop_invariant)",
+					"end": "(?=\\*/)",
+					"contentName": "meta.block.jml.loop",
+					"patterns": [
+						{
+							"include": "#jml-loop"
+						}
+					]
+				},
+				{
+					"begin": "(?<=@\\s+)(?=((static|instance)\\s+)?(invariant|constraint|initially|axiom))",
+					"contentName": "meta.block.jml.invariant",
+					"end": "(?=\\*/)",
+					"patterns": [
+						{
+							"include": "#jml-invariant"
+						}
+					]
+				},
+				{
+					"match": "((strictly_)?pure|helper|model|nullable(_by_default)?|non_null|spec_public)",
+					"captures": {
+						"1": {
+							"name": "storage.modifier.java"
+						}
+					}
+				},
+				{
+					"include": "#jml-at"
+				},
+				{
+					"include": "#comments-inline"
 				}
 			]
 		},
@@ -977,6 +1623,9 @@
 				},
 				{
 					"include": "#variables"
+				},
+				{
+					"include": "#objects"
 				},
 				{
 					"include": "#primitive-arrays"
@@ -1373,7 +2022,7 @@
 		"properties": {
 			"patterns": [
 				{
-					"match": "(\\.)\\s*([a-zA-Z_$][\\w$]*)(?=\\s*\\.\\s*[a-zA-Z_$][\\w$]*)",
+					"match": "(?<!\\.)(\\.)\\s*([a-zA-Z_$][\\w$]*)(?=\\s*\\.\\s*[a-zA-Z_$][\\w$]*)",
 					"captures": {
 						"1": {
 							"name": "punctuation.separator.period.java"
@@ -1384,7 +2033,7 @@
 					}
 				},
 				{
-					"match": "(\\.)\\s*([a-zA-Z_$][\\w$]*)",
+					"match": "(?<!\\.)(\\.)\\s*([a-zA-Z_$][\\w$]*)",
 					"captures": {
 						"1": {
 							"name": "punctuation.separator.period.java"
@@ -1395,7 +2044,7 @@
 					}
 				},
 				{
-					"match": "(\\.)\\s*([0-9][\\w$]*)",
+					"match": "(?<!\\.)(\\.)\\s*([0-9][\\w$]*)",
 					"captures": {
 						"1": {
 							"name": "punctuation.separator.period.java"
