@@ -600,6 +600,17 @@
 				}
 			]
 		},
+		"jml-types": {
+			"patterns": [
+				{
+					"include": "#primitive-types"
+				},
+				{
+					"match": "\\\\(bigint|seq|locset)",
+					"name": "storage.type.primitive.java"
+				}
+			]
+		},
 		"jml-quantors": {
 			"patterns": [
 				{
@@ -613,16 +624,40 @@
 					"end": "\\)",
 					"patterns": [
 						{
-							"include": "#primitive-types"
-						},
-						{
-							"match": "\\\\(bigint|seq|locset)",
-							"name": "storage.type.primitive.java"
+							"include": "#jml-types"
 						},
 						{
 							"include": "#jml-expression"
 						}
 					]
+				}
+			]
+		},
+		"jml-method-accessible": {
+			"begin": "(?<=@\\s+)(accessible)",
+			"beginCaptures": {
+				"1": {
+					"name": "storage.modifier.java"
+				}
+			},
+			"contentName": "meta.block.jml.accessible",
+			"end": "(;)",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.terminator.java"
+				}
+			},
+			"patterns": [
+				{
+					"match": "\\*",
+					"name": "punctuation.separator.star.java"
+				},
+				{
+					"include": "#jml-expression"
+				},
+				{
+					"match": "\\\\(nothing|everything)",
+					"name": "storage.modifier.java"
 				}
 			]
 		},
@@ -676,6 +711,9 @@
 					"patterns": [
 						{
 							"include": "#jml-expression"
+						},
+						{
+							"include": "#jml-types"
 						}
 					]
 				},
@@ -755,7 +793,7 @@
 					]
 				},
 				{
-					"begin": "(\\\\(dl_[A-Za-z_$][\\w$]*|old|pre|intersect|set_union|set_minus|infinite_union|reachLocs|seq_concat|seq_singleton|invariant_for))\\s*(\\()",
+					"begin": "(\\\\(dl_[A-Za-z_$][\\w$]*|old|pre|intersect|set_union|set_minus|infinite_union|reachLocs|seq_concat|(seq_)?singleton|(static_)?invariant_for|new_elems_fresh|fresh|typeof|type|subset|is_initialized|disjoint|all_fields|reach|nonnullelements))\\s*(\\()",
 					"beginCaptures": {
 						"1": {
 							"name": "storage.modifier.java"
@@ -846,7 +884,7 @@
 			]
 		},
 		"jml-requires-ensures": {
-			"begin": "(?<=@\\s+)(requires|ensures)",
+			"begin": "(?<=@\\s+)(requires|ensures(_free)?)",
 			"beginCaptures": {
 				"1": {
 					"name": "storage.modifier.java"
@@ -889,6 +927,9 @@
 			"patterns": [
 				{
 					"include": "#jml-requires-ensures"
+				},
+				{
+					"include": "#jml-method-accessible"
 				},
 				{
 					"include": "#comments-inline"
@@ -937,20 +978,26 @@
 							"include": "#parameters"
 						},
 						{
+							"include": "#jml-types"
+						},
+						{
 							"include": "#jml-parens"
 						},
 						{
 							"include": "#comments"
+						},
+						{
+							"include": "#jml-at"
 						}
 					]
 				},
 				{
-					"begin": "(?=\\w.*\\s+\\w+\\s*\\()",
+					"begin": "(?=[\\w\\\\].*\\s+\\w+\\s*\\()",
 					"end": "(?=\\s+\\w+\\s*\\()",
 					"name": "meta.method.return-type.java",
 					"patterns": [
 						{
-							"include": "#all-types"
+							"include": "#jml-types"
 						},
 						{
 							"include": "#jml-parens"
@@ -996,6 +1043,9 @@
 					"include": "#jml-assignable"
 				},
 				{
+					"include": "#jml-method-accessible"
+				},
+				{
 					"include": "#jml-measured-by"
 				},
 				{
@@ -1006,15 +1056,48 @@
 				}
 			]
 		},
+		"jml-accessible": {
+			"begin": "(?<=@\\s+)(accessible)\\s+((\\\\inv)|([A-Za-z$_][\\w$]*))\\s*:\\s*",
+			"beginCaptures" : {
+				"1": {
+					"name": "storage.modifier.java"
+				}, 
+				"3": {
+					"name": "storage.modifier.java"
+				},
+				"4": {
+					"name": "variable.other.definition.java"
+				}
+			},
+			"contentName": "meta.block.jml.accessible",
+			"end": "(;)",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.terminator.java"
+				}
+			},
+			"patterns": [
+				{
+					"match": "\\\\(nothing|everything)",
+					"name": "storage.modifier.java"
+				},
+				{
+					"include": "#jml-expression"
+				}
+			]
+		},
 		"jml-invariant": {
 			"patterns": [
 				{
-					"begin": "(?<=@\\s+)((static|instance)\\s+)?(invariant|constraint|initially|axiom)",
+					"begin": "(?<=@\\s+)((public|private)\\s+)?((static|instance)\\s+)?(invariant|constraint|initially|axiom)",
 					"beginCaptures": {
 						"2": {
 							"name": "storage.modifier.java"
 						},
-						"3": {
+						"4": {
+							"name": "storage.modifier.java"
+						},
+						"5": {
 							"name": "storage.modifier.java"
 						}
 					},
@@ -1030,6 +1113,9 @@
 							"include": "#jml-expression"
 						}
 					]
+				},
+				{
+					"include": "#jml-accessible"
 				},
 				{
 					"include": "#comments-inline"
@@ -1080,6 +1166,20 @@
 				}
 			}
 		},
+		"jml-assert": {
+			"begin": "(?<=@\\s+)(assert)\\s+",
+			"beginCaptures": {
+				"1": {
+					"name": "storage.modifier.java"
+				}
+			},
+			"end": ";",
+			"patterns": [
+				{
+					"include": "#jml-expression"
+				}
+			]
+		},
 		"comments-jml-single": {
 			"begin": "(//)(?=@)",
 			"beginCaptures": {
@@ -1094,9 +1194,12 @@
 					"include": "#jml-invariant"
 				},
 				{
-					"begin": "(?<=@\\s+)(ghost|model)\\s+",
+					"begin": "(?<=@\\s+)(ghost|model)(\\s+(final))?\\s+",
 					"beginCaptures": {
 						"1": {
+							"name": "storage.modifier.java"
+						},
+						"3": {
 							"name": "storage.modifier.java"
 						}
 					},
@@ -1106,7 +1209,7 @@
 							"include": "#jml-expression"
 						},
 						{
-							"include": "#all-types"
+							"include": "#jml-types"
 						},
 						{
 							"match": "([A-Za-z$_][\\w$]*)",
@@ -1115,21 +1218,10 @@
 					]
 				},
 				{
-					"begin": "(?<=@\\s+)(assert)\\s+",
-					"beginCaptures": {
-						"1": {
-							"name": "storage.modifier.java"
-						}
-					},
-					"end": ";",
-					"patterns": [
-						{
-							"include": "#jml-expression"
-						}
-					]
+					"include": "#jml-assert"
 				},
 				{
-					"begin": "(?<=@\\s+)(set)\\s+([A-Za-z$_][\\w$]*)\\s+=\\s+",
+					"begin": "(?<=@\\s+)(set)\\s+([A-Za-z$_][\\w$]*(\\.[A-Za-z$_][\\w$]*)*)\\s+=\\s+",
 					"beginCaptures": {
 						"1": {
 							"name": "storage.modifier.java"
@@ -1166,7 +1258,7 @@
 			},
 			"patterns": [
 				{
-					"begin": "(?<=@\\s+)((public|private)\\s+)?(normal_behaviou?r)",
+					"begin": "(?<=@\\s+)((public|private)\\s+)?((normal|exceptional)_behaviou?r)",
 					"beginCaptures": {
 						"2": {
 							"name": "storage.modifier.java"
@@ -1212,7 +1304,7 @@
 					]
 				},
 				{
-					"begin": "(?<=@\\s+)(?=((static|instance)\\s+)?(invariant|constraint|initially|axiom))",
+					"begin": "(?<=@\\s+)(?=((public|private)\\s+)?((static|instance)\\s+)?(invariant|constraint|initially|axiom))",
 					"contentName": "meta.block.jml.invariant",
 					"end": "(?=\\*/)",
 					"patterns": [
@@ -1228,6 +1320,9 @@
 							"name": "storage.modifier.java"
 						}
 					}
+				},
+				{
+					"include": "#jml-assert"
 				},
 				{
 					"include": "#jml-at"
